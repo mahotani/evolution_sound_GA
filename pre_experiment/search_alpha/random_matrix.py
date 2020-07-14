@@ -1,3 +1,5 @@
+# coding: UTF-8
+
 import csv
 import numpy as np 
 import math
@@ -40,11 +42,10 @@ def make_random_vector(num_dimentions):
     ランダム行列の生成
     要素は全て[-1, 1]の範囲
 '''
-def make_random_matrix(num_elements, num_dimensions):
+def make_random_matrix(num_elements, num_dimentions):
     random_matrix = []
     for element in range(num_elements):
-        random_matrix.append(make_random_vector(num_dimensions))
-    print(random_matrix)
+        random_matrix.append(make_random_vector(num_dimentions))
     return random_matrix
 
 '''
@@ -98,8 +99,8 @@ def each_distance(distance_matrix):
 '''
     指定したindexの要素を入れ替える
 '''
-def replace_element(matrix, index):
-    matrix[index] = make_random_vector(len(matrix[index]))
+def replace_element(matrix, index, new_vector):
+    matrix[index] = new_vector
     return matrix
 
 '''
@@ -152,34 +153,53 @@ def add_ranking(random_matrix):
     Main
 '''
 # 個体数
-num_elements = 5000
+num_elements = 100
 # 次元数
-num_dimensions = 100
-# ユークリッド距離の小さい要素を入れ替える回数
-num_replace = 0
+num_dimentions = 100
+# ユークリッド距離の小さい要素を連続で入れ替えなかった回数
+num_noreplace = 0
 
 
 
 # ユークリッド距離の履歴
-# euclid_history = []
-# euclid_history.append(header(num_elements))
+euclid_history = []
+euclid_history.append(header(num_elements))
 
 # [-1, 1]の範囲でランダム行列を作成
-random_matrix = make_random_matrix(num_elements, num_dimensions)
+random_matrix = make_random_matrix(num_elements, num_dimentions)
         
 # ユークリッド距離の行列
 euclid_matrix = get_distance_matrix(random_matrix)
 
-for num in range(1, 101):
-    for count in range(1, num_replace + 1):
-        print(count)
+for num in range(1, 2):
+    while num_noreplace < 100:
+        print(num_noreplace)
+        # ユークリッド距離の平均のリストと最も小さい距離のインデックスの取得
         index, distances = each_distance(euclid_matrix)
+        # ユークリッド距離に関するリストの更新
         euclid_history.append(distances)
-        replace_element(random_matrix, index)
-        euclid_matrix = update_distance(random_matrix, euclid_matrix, index)
+        # 差し替え候補のベクトルを作成
+        new_vector = make_random_vector(num_dimentions)
+        # 仮に差し替えた後の個体群行列の作成
+        temp_matrix = replace_element(random_matrix, index, new_vector)
+        # 仮に差し替えた行列のユークリッド距離の行列を取得
+        temp_euclid_matrix = update_distance(temp_matrix, euclid_matrix, index)
+        # 仮に差し替えた行列のユークリッド距離の平均のリストと最も小さい距離のインデックスの取得
+        new_index, new_distances = each_distance(temp_euclid_matrix)
+
+        print(sum(new_distances))
+        # 差し替えた方が距離が大きい場合は個体群行列を差し替えて更新し、num_noreplaceをリセットする
+        if sum(distances) < sum(new_distances):
+            random_matrix = temp_matrix
+            num_noreplace = 0
+            # ユークリッド距離行列を更新する
+            euclid_matrix = temp_euclid_matrix
+        # 差し替えない方が良い場合、個体群行列を更新せずnum_noreplaceを+1する
+        else:
+            num_noreplace += 1
 
     '''
-    # 重み付け
+    # 重み付け(解空間用)
     for row in random_matrix:
         row.append(np.random.rand() * 20)
     '''
@@ -188,7 +208,7 @@ for num in range(1, 101):
     # add_ranking(random_matrix)
 
     # 書き込むファイル
-    filename = 'big_matrix_for_random/big_random_matrix%i' % num
+    filename = 'csv_files/mock_initial_individuals'
 
     # 結果をcsvに書き込む
     write_csv(random_matrix, filename)
