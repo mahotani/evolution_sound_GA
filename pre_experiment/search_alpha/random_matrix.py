@@ -174,11 +174,9 @@ euclid_matrix = get_distance_matrix(random_matrix)
 
 index, distances = each_distance(euclid_matrix)
 for num in range(1, 2):
-    count = 0
     while num_noreplace < 1000:
         print(num_noreplace)
         temp = euclid_matrix
-        count += 1
         # ユークリッド距離の平均のリストと最も小さい距離のインデックスの取得
         index, distances = each_distance(euclid_matrix)
         # ユークリッド距離に関するリストの更新
@@ -201,9 +199,6 @@ for num in range(1, 2):
         # 差し替えない方が良い場合、個体群行列を更新せずnum_noreplaceを+1する
         else:
             num_noreplace += 1
-        if count % 100 == 0:
-            print(count)
-            print(new_distances[100])
     '''
     # 重み付け(解空間用)
     for row in random_matrix:
