@@ -1,3 +1,5 @@
+# coding: UTF-8
+
 import csv
 import numpy as np 
 import functions
@@ -12,7 +14,7 @@ def crossover(parents, num_parents, num_dimentions):
         for parents_index in range(len(parents)):
             parents_vector[parents_index] = parents[parents_index][child_index]
             # parents_vector.append(parents[parents_index][child_index])
-        child[child_index] = functions.XLM(parents_vector)
+        child[child_index] = functions.REX(parents_vector)
         # child.append(functions.XLM(parents_vector))
 
     return child
@@ -60,6 +62,7 @@ def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_di
 
     return data
 
+
 '''
     Main
 '''
@@ -68,18 +71,19 @@ num_parents = 4
 # 一度の交叉で生まれる子の数
 num_children = 16
 # 読み込むファイル
-read_filename = 'pre_experiment/mock_random_matrix_100'
+read_filename = 'csv_files/mock_initial_individuals'
 # 書き込むファイル
-write_filename = 'JGG/children'
+write_mean = 'csv_files/alpha=1/means'
+write_std = 'csv_files/alpha=1/standard_deviations'
 # 実行回数
-num_execute = int(5000/6)
+num_execute = 200
 # 潜在空間の次元数
 num_dimentions = 100
 
 # 局所解ファイル
-solutions_file = 'pre_experiment/mock_solutions_100'
+solutions_file = 'csv_files/mock_solution_zeros'
 # 評価結果のファイル
-result_file = 'JGG/evaluation_result'
+result_file = 'csv_files/evaluation_result'
 
 # 局所解ファイルの読み込み
 solutions_data = functions.read_csv(solutions_file)
@@ -94,23 +98,41 @@ bias = np.array(bias)
 # 評価値の結果のリスト
 evaluations_result = []
 
-for num_experiment in range(1, 101):
+# 平均を入れるリスト
+means = []
+
+# 標準偏差を入れるリスト
+standard_deviations = []
+
+
+
+for num_experiment in range(1, 2):
     print(num_experiment)
     # 対象のデータの読み込み
     data = functions.read_csv(read_filename)
     del data[0]
     data = functions.transform_to_float(data)
     data = np.array(data)
+    this_mean, this_std = functions.get_means_sd_list(data)
+    means.append(this_mean)
+    standard_deviations.append(this_std)
     for num in range(num_execute):
         data = next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions)
+        this_mean, this_std = functions.get_means_sd_list(data)
+        means.append(this_mean)
+        standard_deviations.append(this_std)
         # print('-------')
         # print(functions.get_result(data, functions.get_evaluations_list(data, solutions, bias), num_experiment, functions.get_best_solution_index(bias), solutions))
         
-    functions.write_csv(write_filename + '_%i' % num_experiment, data)
+    functions.write_csv(write_mean, means)
+    functions.write_csv(write_std, standard_deviations)
 
     evaluations = functions.get_evaluations_list(data, solutions, bias)
     evaluations_vector = functions.get_result(data, evaluations, num_experiment, functions.get_best_solution_index(bias), solutions)
     evaluations_result.append(evaluations_vector)
 
-final_result = functions.get_final_result(evaluations_result)
-functions.write_result(result_file, evaluations_result, final_result)
+
+for row in means:
+    print(row)
+# final_result = functions.get_final_result(evaluations_result)
+# functions.write_result(result_file, evaluations_result, final_result)
