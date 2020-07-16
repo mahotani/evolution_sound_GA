@@ -169,12 +169,13 @@ def get_best_solution_index(bias):
 
 '''
     局所解とそれぞれの解のバイアスを元に評価値を返す
+    評価値は1次元目しか影響を与えられない
 '''
 def get_evaluation_value(vector, solutions, bias):
     evaluations = np.zeros(len(solutions))
     for solution_index in range(len(solutions)):
+        # 1次元目しか影響を与えないように変更
         evaluations[solution_index] = (vector[0] - solutions[solution_index][0]) * (vector[0] - solutions[solution_index][0])
-        
     index = np.argmin(evaluations)
     minimum = np.min(evaluations)
     minimum *= 20 - bias[index]
