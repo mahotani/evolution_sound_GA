@@ -173,7 +173,7 @@ def get_best_solution_index(bias):
 def get_evaluation_value(vector, solutions, bias):
     evaluations = np.zeros(len(solutions))
     for solution_index in range(len(solutions)):
-        evaluations[solution_index] = euclid_distance(vector, solutions[solution_index])
+        evaluations[solution_index] = (vector[0] - solutions[solution_index][0]) * (vector[0] - solutions[solution_index][0])
         
     index = np.argmin(evaluations)
     minimum = np.min(evaluations)
@@ -277,16 +277,13 @@ def write_result(filename, results, whole_result):
         writer.writerow(whole_result)
 
 '''
-    各次元の平均のリストを取得する
+    指定した次元の平均と標準偏差を取得する
 '''
-def get_means_sd_list(data):
-    means = []
-    standard_deviations = []
-    for dim in range(len(data[0])):
-        dimention = np.zeros(len(data[0]))
-        for individual in range(len(data)):
-            dimention[dim] = data[individual][dim]
-        means.append(np.mean(dimention))
-        standard_deviations.append(np.std(dimention))
+def get_mean_sd(data, dimention):
+    vector = np.zeros(len(data[0]))
+    for individual in range(len(data)):
+        vector[individual] = data[individual][dimention]
+    mean = np.mean(vector)
+    standard_deviation = np.std(vector)
     
-    return means, standard_deviations
+    return mean, standard_deviation

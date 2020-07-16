@@ -76,7 +76,7 @@ read_filename = 'csv_files/mock_initial_individuals'
 write_mean = 'csv_files/alpha=1/means'
 write_std = 'csv_files/alpha=1/standard_deviations'
 # 実行回数
-num_execute = 200
+num_execute = 1000
 # 潜在空間の次元数
 num_dimentions = 100
 
@@ -106,33 +106,32 @@ standard_deviations = []
 
 
 
-for num_experiment in range(1, 2):
+for num_experiment in range(1, 101):
     print(num_experiment)
     # 対象のデータの読み込み
     data = functions.read_csv(read_filename)
     del data[0]
     data = functions.transform_to_float(data)
     data = np.array(data)
-    this_mean, this_std = functions.get_means_sd_list(data)
-    means.append(this_mean)
-    standard_deviations.append(this_std)
+    this_mean, this_std = functions.get_mean_sd(data, 99)
+    mean = [this_mean]
+    std = [this_std]
     for num in range(num_execute):
         data = next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions)
-        this_mean, this_std = functions.get_means_sd_list(data)
-        means.append(this_mean)
-        standard_deviations.append(this_std)
+        this_mean, this_std = functions.get_mean_sd(data, 99)
+        mean.append(this_mean)
+        std.append(this_std)
         # print('-------')
         # print(functions.get_result(data, functions.get_evaluations_list(data, solutions, bias), num_experiment, functions.get_best_solution_index(bias), solutions))
-        
-    functions.write_csv(write_mean, means)
-    functions.write_csv(write_std, standard_deviations)
 
     evaluations = functions.get_evaluations_list(data, solutions, bias)
     evaluations_vector = functions.get_result(data, evaluations, num_experiment, functions.get_best_solution_index(bias), solutions)
     evaluations_result.append(evaluations_vector)
+    means.append(mean)
+    standard_deviations.append(std)
 
+functions.write_csv(write_mean, means)
+functions.write_csv(write_std, standard_deviations)
 
-for row in means:
-    print(row)
 # final_result = functions.get_final_result(evaluations_result)
 # functions.write_result(result_file, evaluations_result, final_result)
