@@ -43,11 +43,11 @@ def random_parent(data, num_parents):
     REX
     乱数には正規分布を使用
 '''
-def REX(parent_vector):
+def REX(parent_vector, alpha):
     weight = np.mean(parent_vector)
     child_temp = weight
     for element in parent_vector:
-        child_temp += (element - weight) * np.random.normal(0, math.sqrt(1/len(parent_vector)))
+        child_temp += (element - weight) * np.random.normal(0, math.sqrt(1/len(parent_vector))*alpha)
         
     return child_temp
 
@@ -81,11 +81,11 @@ def choose_roulette(data, num_parents, solutions, bias):
 '''
     拡張XLM
 '''
-def XLM(parent_vector):
+def XLM(parent_vector, alpha):
     weight = np.sum(parent_vector) / len(parent_vector)
     child = parent_vector[0]
     for element in parent_vector:
-        child += (element - weight) * np.random.normal(0, 1/len(parent_vector))
+        child += (element - weight) * np.random.normal(0, math.sqrt(1/len(parent_vector))*alpha)
 
     return child
 

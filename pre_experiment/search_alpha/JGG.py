@@ -7,14 +7,14 @@ import functions
 '''
     交叉
 '''
-def crossover(parents, num_parents, num_dimentions):
+def crossover(parents, num_parents, num_dimentions, alpha):
     child = np.zeros(num_dimentions)
     for child_index in range(len(parents[0])):
         parents_vector = np.zeros(num_parents)
         for parents_index in range(len(parents)):
             parents_vector[parents_index] = parents[parents_index][child_index]
             # parents_vector.append(parents[parents_index][child_index])
-        child[child_index] = functions.REX(parents_vector)
+        child[child_index] = functions.REX(parents_vector, alpha)
         # child.append(functions.XLM(parents_vector))
 
     return child
@@ -22,7 +22,7 @@ def crossover(parents, num_parents, num_dimentions):
 '''
     JGGによる次世代の生成
 '''
-def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions):
+def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions, alpha):
     # 親個体と親個体のindexを取得
     parents, parents_index = functions.random_parent(data, num_parents)
 
@@ -31,7 +31,7 @@ def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_di
 
     # crossover()を使用して子個体の生成
     for cross in range(num_children):
-        child_vector = crossover(parents, num_parents, num_dimentions)
+        child_vector = crossover(parents, num_parents, num_dimentions, alpha)
         children[cross] = np.copy(child_vector)
     
     # 評価値の取得
@@ -70,11 +70,13 @@ def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_di
 num_parents = 4
 # 一度の交叉で生まれる子の数
 num_children = 16
+# 交叉の際に分散にかけるalpha値
+alpha = 1.05
 # 読み込むファイル
 read_filename = 'csv_files/mock_initial_individuals'
 # 書き込むファイル
-write_mean = 'csv_files/alpha=1/means'
-write_std = 'csv_files/alpha=1/standard_deviations'
+write_mean = 'csv_files/alpha=%d/means' % (alpha)
+write_std = 'csv_files/alpha=%d/standard_deviations' % (alpha)
 # 実行回数
 num_execute = 1000
 # 潜在空間の次元数
@@ -117,7 +119,7 @@ for num_experiment in range(1, 101):
     mean = [this_mean]
     std = [this_std]
     for num in range(num_execute):
-        data = next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions)
+        data = next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions, alpha)
         this_mean, this_std = functions.get_mean_sd(data, 99)
         mean.append(this_mean)
         std.append(this_std)
