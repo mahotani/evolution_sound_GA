@@ -3,20 +3,20 @@
 import csv
 import numpy as np 
 import functions
+from copy import deepcopy
 
 '''
     交叉
 '''
 def crossover(parents, num_parents, num_dimentions, alpha):
     child = np.zeros(num_dimentions)
-    for child_index in range(len(parents[0])):
+    for child_index in range(num_dimentions):
         parents_vector = np.zeros(num_parents)
         for parents_index in range(len(parents)):
             parents_vector[parents_index] = parents[parents_index][child_index]
             # parents_vector.append(parents[parents_index][child_index])
         child[child_index] = functions.REX(parents_vector, alpha)
         # child.append(functions.XLM(parents_vector))
-
     return child
 
 '''
@@ -32,8 +32,8 @@ def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_di
     # crossover()を使用して子個体の生成
     for cross in range(num_children):
         child_vector = crossover(parents, num_parents, num_dimentions, alpha)
-        children[cross] = np.copy(child_vector)
-    
+        children[cross] = deepcopy(child_vector)
+
     # 評価値の取得
     evaluations = functions.get_evaluations_list(children, solutions, bias)
     # 評価値を元に子個体のランキングを取得
@@ -59,6 +59,7 @@ def next_generation_JGG(data, solutions, bias, num_parents, num_children, num_di
     min_index4 = np.argmin(evaluations[12:16]) + 12
     # children[12:15]の一番良い子個体と親個体の交換
     data[parents_index[3]] = np.copy(children[min_index4])
+    
 
     return data
 
@@ -71,12 +72,12 @@ num_parents = 4
 # 一度の交叉で生まれる子の数
 num_children = 16
 # 交叉の際に分散にかけるalpha値
-alpha = 1.05
+alpha = 1.0
 # 読み込むファイル
 read_filename = 'csv_files/mock_initial_individuals'
 # 書き込むファイル
-write_mean = 'csv_files/alpha=%d/means' % (alpha)
-write_std = 'csv_files/alpha=%d/standard_deviations' % (alpha)
+write_mean = 'csv_files/alpha=%s/means' % (str(alpha))
+write_std = 'csv_files/alpha=%s/standard_deviations' % (str(alpha))
 # 実行回数
 num_execute = 1000
 # 潜在空間の次元数
@@ -106,9 +107,7 @@ means = []
 # 標準偏差を入れるリスト
 standard_deviations = []
 
-
-
-for num_experiment in range(1, 101):
+for num_experiment in range(1, 11):
     print(num_experiment)
     # 対象のデータの読み込み
     data = functions.read_csv(read_filename)
@@ -121,11 +120,12 @@ for num_experiment in range(1, 101):
     for num in range(num_execute):
         data = next_generation_JGG(data, solutions, bias, num_parents, num_children, num_dimentions, alpha)
         this_mean, this_std = functions.get_mean_sd(data, 99)
+        # print(data[0][99])
         mean.append(this_mean)
         std.append(this_std)
         # print('-------')
         # print(functions.get_result(data, functions.get_evaluations_list(data, solutions, bias), num_experiment, functions.get_best_solution_index(bias), solutions))
-
+    # print(std)
     evaluations = functions.get_evaluations_list(data, solutions, bias)
     evaluations_vector = functions.get_result(data, evaluations, num_experiment, functions.get_best_solution_index(bias), solutions)
     evaluations_result.append(evaluations_vector)

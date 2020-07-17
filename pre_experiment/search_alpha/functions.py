@@ -47,8 +47,8 @@ def REX(parent_vector, alpha):
     weight = np.mean(parent_vector)
     child_temp = weight
     for element in parent_vector:
-        child_temp += (element - weight) * np.random.normal(0, math.sqrt(1/len(parent_vector))*alpha)
-        
+        rand = np.random.normal(0, (1.0/len(parent_vector)) ** 0.5)
+        child_temp += (element - weight) * rand
     return child_temp
 
 '''
